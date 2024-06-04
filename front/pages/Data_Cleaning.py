@@ -36,7 +36,7 @@ elif method == "Sophisticated imputation":
 
     st.write("You selected:", imputation)
 
-submit_button = st.button("Submit")
+submit_button = st.button("Submit your cleaning")
 
 if submit_button:
     if method is None or (method == "Datas replacement" and replacement is None) or (method == "Sophisticated imputation" and imputation is None):
@@ -56,9 +56,9 @@ normalizing = st.selectbox(
 
 st.write("You selected:", normalizing)
 
-if st.button("Submit"):
+if st.button("Submit your normalization"):
     if method is None or (method == "Datas replacement" and replacement is None) or (method == "Sophisticated imputation" and imputation is None) or normalizing is None:
         st.error("Please select a valid option in all the select boxes")
     else:
-        st.success("Submitted successfully!")
-        # Add your data cleaning code here
+        st.success("Datas has been normalized successfully!")
+        # Add your data cleaning, normalization, and download code here
