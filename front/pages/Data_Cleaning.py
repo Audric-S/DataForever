@@ -13,7 +13,10 @@ method = st.selectbox(
 
 st.write("You selected:", method)
 
-if method == "Datas replacement":
+if method == "Delete datas":
+    threshold = st.slider('Select the threshold percentage to delete rows with missing data:', 0, 100, 50)
+    st.write("You selected threshold:", threshold, "%")
+elif method == "Datas replacement":
     replacement_options = ("Mean", "Median", "Mode")
 
     replacement = st.selectbox(
@@ -39,13 +42,12 @@ elif method == "Sophisticated imputation":
 submit_button = st.button("Submit your cleaning")
 
 if submit_button:
-    if method is None or (method == "Datas replacement" and replacement is None) or (method == "Sophisticated imputation" and imputation is None):
+    if method is None or (method == "Delete datas" and threshold is None) or (method == "Datas replacement" and replacement is None) or (method == "Sophisticated imputation" and imputation is None):
         st.error("Please select a valid option in all the select boxes")
     else:
         st.success("Datas has been cleaned successfully!")
 
 st.subheader('Data normalizing', divider='grey')
-
 
 normalizing = st.selectbox(
     "How would you like to normalize your datas ?",
@@ -57,7 +59,7 @@ normalizing = st.selectbox(
 st.write("You selected:", normalizing)
 
 if st.button("Submit your normalization"):
-    if method is None or (method == "Datas replacement" and replacement is None) or (method == "Sophisticated imputation" and imputation is None) or normalizing is None:
+    if method is None or (method == "Delete datas" and threshold is None) or (method == "Datas replacement" and replacement is None) or (method == "Sophisticated imputation" and imputation is None) or normalizing is None:
         st.error("Please select a valid option in all the select boxes")
     else:
         st.success("Datas has been normalized successfully!")
