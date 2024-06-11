@@ -120,7 +120,7 @@ max_iter (int): Maximum number of imputation iterations
 Returns:
 DataFrame with missing values imputed
 """
-def regression_impute(df, estimator=BayesianRidge(), max_iter=10):
+def regression_impute(df, estimator, max_iter=10):
     imputer = IterativeImputer(estimator=estimator, max_iter=max_iter, random_state=0)
     imputed_array = imputer.fit_transform(df)
     imputed_df = pd.DataFrame(imputed_array, columns=df.columns)
