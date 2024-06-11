@@ -1,6 +1,6 @@
 import streamlit as st
 from pages.load_data import load_data_page
-from pages.analyze_data_page import analyze_data_page 
+from pages.data_visualisation import data_visualization
 
 def main():
     st.set_page_config(page_title="Streamlit App", page_icon="📊", layout="centered")
@@ -11,12 +11,12 @@ def main():
     nav_container.empty() 
     
     with nav_container:
-        page = st.radio("Go to", ["Load Data", "Analyze Data"])
+        page = st.radio("Go to", ["Load Data", "Visualize datas"])
     
     if page == "Load Data":
         load_data_page()
-    elif page == "Analyze Data":
-        analyze_data_page()
+    elif page == "Visualize datas":
+        data_visualization()
 
 if __name__ == "__main__":
     main()
