@@ -44,14 +44,16 @@ def displayed_figure(df, selectedMode):
 
 ############################## Using part #####################################
 
-st.title('Data Visualisation')
 
-# Lire le fichier CSV
-df = pd.read_csv('1000_cryptos.csv')
 
-# Supprimer la première colonne
-df = df.drop(columns=df.columns[0])
 
-# Choose the mode of visualisation
-visualisation_mode = st.selectbox('Sélectionner le type de visualisation', visulasiation_options)
-displayed_figure(df, visualisation_mode)
+def data_visualization():
+    if 'data' in st.session_state:
+        df = st.session_state['data']
+
+        visualisation_mode = st.selectbox('Sélectionner le type de visualisation', visulasiation_options)
+        
+        displayed_figure(df, visualisation_mode)
+    else:
+        st.write("No data loaded yet. Please upload a CSV file first.")
+

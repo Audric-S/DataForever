@@ -4,6 +4,10 @@ from sklearn.impute import KNNImputer
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.linear_model import BayesianRidge
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
+
 
 """
     Delete rows in a DataFrame from a certain threshold
@@ -122,16 +126,22 @@ def regression_impute(df, estimator=BayesianRidge(), max_iter=10):
     imputed_df = pd.DataFrame(imputed_array, columns=df.columns)
     return imputed_df
 
-# Exemple d'utilisation :
-if __name__ == "__main__":
-    # Exemple de DataFrame avec des valeurs manquantes
-    data = {
-        'A': [1, 2, None, 4],
-        'B': [5, None, 7, 8],
-        'C': [None, 11, 12, 13]
-    }
-    df = pd.DataFrame(data)
 
-    # Imputation des valeurs manquantes par régression
-    imputed_df = regression_impute(df)
-    print(imputed_df)
+"""
+Get the regression estimator based on the name in the choice list
+
+Parameters:
+estimator_name: Name to parse
+
+Returns:
+The right estimator, default BayesianRidge
+"""
+def get_estimator(estimator_name):
+    estimators = {
+        "BayesianRidge": BayesianRidge(),
+        "LinearRegression": LinearRegression(),
+        "Ridge": Ridge(),
+        "RandomForestRegressor": RandomForestRegressor(),
+        "SVR": SVR()
+    }
+    return estimators.get(estimator_name, BayesianRidge())
