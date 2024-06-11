@@ -55,11 +55,22 @@ elif method == "Sophisticated imputation":
         # Use st.number_input to get the user's input and update the value of num_neighbors
         num_neighbors = st.number_input("Choose the number of neighbors for KNN imputation:", value=None, placeholder="Type a number...", min_value=1)
         st.write("You selected:", num_neighbors, "neighbors")
+    elif imputation == "Regression":
+        regression_estimators = ("BayesianRidge", "LinearRegression", "Ridge",  "RandomForestRegressor", "SVR")
+
+        selected_estimator = st.selectbox(
+            "Which regression estimator would you like to use ?",
+            regression_estimators,
+            index=None,
+            placeholder="Select an estimator"
+        )
+
+        st.write("You selected:", selected_estimator)
 
 submit_button = st.button("Submit your cleaning")
 
 if submit_button:
-    if method is None or (method == "Delete datas" and (threshold is None or delete_choice is None)) or (method == "Datas replacement" and replacement is None) or (method == "Sophisticated imputation" and imputation is None) or (imputation == "KNN" and (num_neighbors is None or num_neighbors <= 0)):
+    if method is None or (method == "Delete datas" and (threshold is None or delete_choice is None)) or (method == "Datas replacement" and replacement is None) or (method == "Sophisticated imputation" and imputation is None) or (imputation == "KNN" and (num_neighbors is None or num_neighbors <= 0)) or (imputation == "Regression" and selected_estimator is None):
         st.error("Please select a valid option in all the select boxes and make sure the number of neighbors is positive")
     else:
         st.success("Datas has been cleaned successfully!")

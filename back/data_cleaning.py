@@ -1,5 +1,9 @@
 import pandas as pd
 import numpy as np
+from sklearn.impute import KNNImputer
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+from sklearn.linear_model import BayesianRidge
 
 """
     Delete rows in a DataFrame from a certain threshold
@@ -82,3 +86,52 @@ def replace_with_mode(df):
         if not mode_value.empty:
             df[column] = df[column].fillna(mode_value[0])
     return df
+
+
+"""
+Impute missing values in a DataFrame using KNN method
+
+Parameters:
+df (pd.DataFrame): Dataframe to clean
+n_neighbors (int): Number of neighbors to use for imputation
+
+Returns:
+DataFrame with missing values imputed
+"""
+def knn_impute(df, n_neighbors):
+    imputer = KNNImputer(n_neighbors=n_neighbors)
+    imputed_array = imputer.fit_transform(df)
+    imputed_df = pd.DataFrame(imputed_array, columns=df.columns)
+    return imputed_df
+
+
+"""
+Impute missing values in a DataFrame using iterative regression
+
+Parameters:
+df (pd.DataFrame): Dataframe to clean
+estimator: Regressor to use for imputation. Default is BayesianRidge
+max_iter (int): Maximum number of imputation iterations
+
+Returns:
+DataFrame with missing values imputed
+"""
+def regression_impute(df, estimator=BayesianRidge(), max_iter=10):
+    imputer = IterativeImputer(estimator=estimator, max_iter=max_iter, random_state=0)
+    imputed_array = imputer.fit_transform(df)
+    imputed_df = pd.DataFrame(imputed_array, columns=df.columns)
+    return imputed_df
+
+# Exemple d'utilisation :
+if __name__ == "__main__":
+    # Exemple de DataFrame avec des valeurs manquantes
+    data = {
+        'A': [1, 2, None, 4],
+        'B': [5, None, 7, 8],
+        'C': [None, 11, 12, 13]
+    }
+    df = pd.DataFrame(data)
+
+    # Imputation des valeurs manquantes par régression
+    imputed_df = regression_impute(df)
+    print(imputed_df)
