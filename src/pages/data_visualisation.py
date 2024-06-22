@@ -55,11 +55,9 @@ def displayed_figure(df, selectedMode):
 ############################## Using part #####################################
 
 def data_visualization():
-    if 'data_clean' in st.session_state:
-        df = st.session_state['data_clean']
-
+    if 'data' in st.session_state:
+        df = st.session_state['data']
         visualisation_mode = st.selectbox('Sélectionner le type de visualisation', visulasiation_options)
-
         displayed_figure(df, visualisation_mode)
     else:
         st.write("No data loaded yet. Please upload a CSV file first.")
