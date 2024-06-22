@@ -55,8 +55,8 @@ def displayed_figure(df, selectedMode):
 ############################## Using part #####################################
 
 def data_visualization():
-    if 'data' in st.session_state:
-        df = st.session_state['data']
+    if 'data_clean' in st.session_state:
+        df = st.session_state['data_clean']
 
         visualisation_mode = st.selectbox('Sélectionner le type de visualisation', visulasiation_options)
 
