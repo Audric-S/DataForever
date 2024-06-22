@@ -10,6 +10,8 @@ def load_data_page():
         try:
             data = pd.read_csv(uploaded_file)
             st.session_state['data'] = data
+            if 'data-clean' in st.session_state:
+                st.session_state['data-clean'] = data
             st.success('File successfully uploaded.')
             
             if data.empty:

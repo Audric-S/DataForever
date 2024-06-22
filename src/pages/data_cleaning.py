@@ -9,6 +9,8 @@ from sklearn.linear_model import BayesianRidge
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
 
 def main():
     st.title('Welcome on the data cleaning page')
@@ -20,7 +22,7 @@ def main():
     if st.button("Submit your cleaning"):
         if validate_inputs(method):
             if 'data' in st.session_state:
-                df = st.session_state['data']
+                df = st.session_state.get('data_clean', st.session_state.get('data'))
                 df = perform_cleaning(df, method)
                 st.session_state['data'] = df
                 st.success("Data has been cleaned successfully!")
@@ -36,7 +38,7 @@ def main():
     if st.button("Submit your normalization"):
         if validate_normalization_inputs(method, normalizing):
             if 'data' in st.session_state:
-                df = st.session_state['data']
+                df = st.session_state.get(st.session_state['data_clean'], st.session_state['data'])
                 df = perform_normalization(df, normalizing)
                 st.session_state['data'] = df
                 st.success("Data has been normalized successfully!")
@@ -282,11 +284,12 @@ Returns:
 DataFrame with missing values imputed
 """
 def knn_impute(df, n_neighbors):
+    non_empty_df = df.dropna(axis=1, how='all')
     imputer = KNNImputer(n_neighbors=n_neighbors)
-    imputed_array = imputer.fit_transform(df)
-    imputed_df = pd.DataFrame(imputed_array)
+    imputed_array = imputer.fit_transform(non_empty_df)
+    imputed_df = pd.DataFrame(imputed_array, columns=non_empty_df.columns)
+    
     return imputed_df
-
 
 """
 Impute missing values in a DataFrame using iterative regression
@@ -299,20 +302,11 @@ max_iter (int): Maximum number of imputation iterations
 Returns:
 DataFrame with missing values imputed
 """
-# def regression_impute(df, estimator, max_iter=10):
-#     imputer = IterativeImputer(estimator=estimator, max_iter=max_iter, random_state=0)
-#     imputed_array = imputer.fit_transform(df)
-#     imputed_df = pd.DataFrame(imputed_array)
-#     return imputed_df
-
 def regression_impute(df, estimator, max_iter=10):
-    numeric_df = df.select_dtypes(include=[np.number])
+    non_empty_df = df.dropna(axis=1, how='all')
     imputer = IterativeImputer(estimator=estimator, max_iter=max_iter, random_state=0)
-    imputed_array = imputer.fit_transform(numeric_df)
-    imputed_numeric_df = pd.DataFrame(imputed_array, columns=numeric_df.columns)
-    non_numeric_df = df.select_dtypes(exclude=[np.number])
-    imputed_df = pd.concat([imputed_numeric_df, non_numeric_df], axis=1)
-    imputed_df = imputed_df[df.columns]
+    imputed_array = imputer.fit_transform(non_empty_df)
+    imputed_df = pd.DataFrame(imputed_array, columns=non_empty_df.columns)
     
     return imputed_df
 
@@ -335,3 +329,25 @@ def get_estimator(estimator_name):
         "SVR": SVR()
     }
     return estimators.get(estimator_name, BayesianRidge())
+
+
+def normalize_min_max(df):
+    scaler = MinMaxScaler()
+    df_normalized = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+    return df_normalized
+
+def normalize_z_score(df):
+    scaler = StandardScaler()
+    df_normalized = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+    return df_normalized
+
+def perform_normalization(df, normalizing_method):
+    if normalizing_method == "Min Max":
+        df_normalized = normalize_min_max(df)
+    elif normalizing_method == "Z-score":
+        df_normalized = normalize_z_score(df)
+    else:
+        raise ValueError("Invalid normalization method selected.")
+
+    st.session_state['data_clean'] = df_normalized
+    return df_normalized
