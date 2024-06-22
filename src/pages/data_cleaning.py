@@ -182,6 +182,8 @@ def data_cleaning():
         main()
     else:
         st.write("No data loaded yet. Please upload a CSV file first.")
+
+        
 ######################################################
 
 
@@ -282,7 +284,7 @@ DataFrame with missing values imputed
 def knn_impute(df, n_neighbors):
     imputer = KNNImputer(n_neighbors=n_neighbors)
     imputed_array = imputer.fit_transform(df)
-    imputed_df = pd.DataFrame(imputed_array, columns=df.columns)
+    imputed_df = pd.DataFrame(imputed_array)
     return imputed_df
 
 
@@ -297,10 +299,21 @@ max_iter (int): Maximum number of imputation iterations
 Returns:
 DataFrame with missing values imputed
 """
+# def regression_impute(df, estimator, max_iter=10):
+#     imputer = IterativeImputer(estimator=estimator, max_iter=max_iter, random_state=0)
+#     imputed_array = imputer.fit_transform(df)
+#     imputed_df = pd.DataFrame(imputed_array)
+#     return imputed_df
+
 def regression_impute(df, estimator, max_iter=10):
+    numeric_df = df.select_dtypes(include=[np.number])
     imputer = IterativeImputer(estimator=estimator, max_iter=max_iter, random_state=0)
-    imputed_array = imputer.fit_transform(df)
-    imputed_df = pd.DataFrame(imputed_array, columns=df.columns)
+    imputed_array = imputer.fit_transform(numeric_df)
+    imputed_numeric_df = pd.DataFrame(imputed_array, columns=numeric_df.columns)
+    non_numeric_df = df.select_dtypes(exclude=[np.number])
+    imputed_df = pd.concat([imputed_numeric_df, non_numeric_df], axis=1)
+    imputed_df = imputed_df[df.columns]
+    
     return imputed_df
 
 

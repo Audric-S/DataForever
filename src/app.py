@@ -4,7 +4,7 @@ from pages.data_visualisation import data_visualization
 from pages.data_cleaning import data_cleaning
 
 def main():
-    st.set_page_config(page_title="Streamlit App", page_icon="📊", layout="centered")
+    st.set_page_config(page_title="Data Forever", page_icon="📊", layout="centered")
     
     st.sidebar.title("Navigation")
     
