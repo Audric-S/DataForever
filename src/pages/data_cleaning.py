@@ -9,16 +9,18 @@ from sklearn.linear_model import BayesianRidge
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
+
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
 def main():
     st.title('Welcome on the data cleaning page')
     st.subheader('Data cleaning', divider='grey')
-    
+
+    select_remove_method()
     method = select_method()
     handle_method_selection(method)
-    
+
     if st.button("Submit your cleaning"):
         if validate_inputs(method):
             if 'data' in st.session_state:
@@ -32,9 +34,9 @@ def main():
 
     st.subheader('Data normalizing', divider='grey')
     normalizing = select_normalizing_method()
-    
+
     st.write("You selected:", normalizing)
-    
+
     if st.button("Submit your normalization"):
         if validate_normalization_inputs(method, normalizing):
             if 'data' in st.session_state:
@@ -46,6 +48,14 @@ def main():
             else:
                 st.error("No data loaded yet. Please upload a CSV file first.")
 
+def select_remove_method():
+    df = st.session_state['data']
+    st.write("Would you like to remove the data of type string ?")
+    st.button("Yes")
+    st.button("No")
+    st.session_state['data'] = df.select_dtypes(include=[np.number])
+
+
 def select_method():
     method = st.selectbox(
         "How would you like to deal with missing values?",
@@ -56,6 +66,7 @@ def select_method():
     st.write("You selected:", method)
     return method
 
+
 def handle_method_selection(method):
     if method == "Delete datas":
         handle_delete_datas()
@@ -63,6 +74,7 @@ def handle_method_selection(method):
         handle_datas_replacement()
     elif method == "Sophisticated imputation":
         handle_sophisticated_imputation()
+
 
 def handle_delete_datas():
     delete_options = ("Rows", "Columns", "Both")
@@ -78,6 +90,7 @@ def handle_delete_datas():
     st.session_state.delete_choice = delete_choice
     st.session_state.threshold = threshold
 
+
 def handle_datas_replacement():
     replacement_options = ("Mean", "Median", "Mode")
     replacement = st.selectbox(
@@ -89,6 +102,7 @@ def handle_datas_replacement():
     st.write("You selected:", replacement)
     st.session_state.replacement = replacement
 
+
 def handle_sophisticated_imputation():
     imputation_options = ("KNN", "Regression")
     imputation = st.selectbox(
@@ -99,7 +113,7 @@ def handle_sophisticated_imputation():
     )
     st.write("You selected:", imputation)
     st.session_state.imputation = imputation
-    
+
     if imputation == "KNN":
         num_neighbors = st.number_input("Choose the number of neighbors for KNN imputation:", value=1, min_value=1)
         st.write("You selected:", num_neighbors, "neighbors")
@@ -115,6 +129,7 @@ def handle_sophisticated_imputation():
         st.write("You selected:", selected_estimator)
         st.session_state.selected_estimator = selected_estimator
 
+
 def select_normalizing_method():
     normalizing = st.selectbox(
         "How would you like to normalize your data?",
@@ -123,6 +138,7 @@ def select_normalizing_method():
         placeholder="Select a method"
     )
     return normalizing
+
 
 def validate_inputs(method):
     if method == "Delete datas":
@@ -137,7 +153,8 @@ def validate_inputs(method):
         if st.session_state.get('imputation') is None:
             st.error("Please select a valid imputation method.")
             return False
-        elif st.session_state.get('imputation') == "KNN" and (st.session_state.get('num_neighbors') is None or st.session_state.get('num_neighbors') <= 0):
+        elif st.session_state.get('imputation') == "KNN" and (
+                st.session_state.get('num_neighbors') is None or st.session_state.get('num_neighbors') <= 0):
             st.error("Please select a valid number of neighbors for KNN.")
             return False
         elif st.session_state.get('imputation') == "Regression" and st.session_state.get('selected_estimator') is None:
@@ -145,11 +162,13 @@ def validate_inputs(method):
             return False
     return True
 
+
 def validate_normalization_inputs(method, normalizing):
     if method is None or normalizing is None:
         st.error("Please select a valid option in all the select boxes.")
         return False
     return True
+
 
 def perform_cleaning(df, method):
     if method == "Delete datas":
@@ -173,7 +192,7 @@ def perform_cleaning(df, method):
         elif st.session_state.imputation == "Regression":
             estimator = get_estimator(st.session_state.selected_estimator)
             df = regression_impute(df, estimator)
-    
+
     st.session_state['data_clean'] = df
     return df
 
@@ -185,9 +204,8 @@ def data_cleaning():
     else:
         st.write("No data loaded yet. Please upload a CSV file first.")
 
-        
-######################################################
 
+######################################################
 
 
 """
@@ -201,6 +219,8 @@ def data_cleaning():
     Returns:
     A new data frame
 """
+
+
 def delete_rows_with_missing_data(df, threshold_percentage):
     threshold = threshold_percentage / 100
     missing_data_per_row = df.isnull().sum(axis=1) / df.shape[1]
@@ -220,13 +240,14 @@ def delete_rows_with_missing_data(df, threshold_percentage):
     Returns:
     A new data frame
 """
+
+
 def delete_cols_with_missing_data(df, threshold_percentage):
     threshold = threshold_percentage / 100
     missing_data_per_col = df.isnull().sum(axis=0) / df.shape[0]
     mask = missing_data_per_col < threshold
     modified_df = df.loc[:, mask]
     return modified_df
-
 
 
 """
@@ -238,6 +259,8 @@ def delete_cols_with_missing_data(df, threshold_percentage):
     Returns:
     The same data frame modified
 """
+
+
 def replace_with_mean(df):
     return df.fillna(df.mean())
 
@@ -251,9 +274,10 @@ def replace_with_mean(df):
     Returns:
     The same data frame modified
 """
+
+
 def replace_with_median(df):
     return df.fillna(df.median())
-
 
 
 """
@@ -265,6 +289,8 @@ def replace_with_median(df):
     Returns:
     The same data frame modified
 """
+
+
 def replace_with_mode(df):
     for column in df.columns:
         mode_value = df[column].mode()
@@ -283,6 +309,8 @@ n_neighbors (int): Number of neighbors to use for imputation
 Returns:
 DataFrame with missing values imputed
 """
+
+
 def knn_impute(df, n_neighbors):
     non_empty_df = df.dropna(axis=1, how='all')
     imputer = KNNImputer(n_neighbors=n_neighbors)
@@ -320,6 +348,8 @@ estimator_name: Name to parse
 Returns:
 The right estimator, default BayesianRidge
 """
+
+
 def get_estimator(estimator_name):
     estimators = {
         "BayesianRidge": BayesianRidge(),
