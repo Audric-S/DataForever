@@ -12,14 +12,14 @@ def main():
     nav_container.empty() 
     
     with nav_container:
-        page = st.radio("Go to", ["Load Data", "Visualize datas", "Clean Datas"])
+        page = st.radio("Go to", ["Load Datas", "Clean Datas", "Visualize Datas"])
     
-    if page == "Load Data":
+    if page == "Load Datas":
         load_data_page()
-    elif page == "Visualize datas":
-        data_visualization()
     elif page == "Clean Datas":
         data_cleaning()
+    elif page == "Visualize Datas":
+        data_visualization()
 
 if __name__ == "__main__":
     main()

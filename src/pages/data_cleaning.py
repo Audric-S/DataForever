@@ -333,8 +333,11 @@ DataFrame with missing values imputed
 def regression_impute(df, estimator, max_iter=10):
     non_empty_df = df.dropna(axis=1, how='all')
     imputer = IterativeImputer(estimator=estimator, max_iter=max_iter, random_state=0)
-    imputed_array = imputer.fit_transform(non_empty_df)
-    imputed_df = pd.DataFrame(imputed_array, columns=non_empty_df.columns)
+    imputed_array = imputer.fit_transform(numeric_df)
+    imputed_numeric_df = pd.DataFrame(imputed_array, columns=numeric_df.columns)
+    non_numeric_df = df.select_dtypes(exclude=[np.number])
+    imputed_df = pd.concat([imputed_numeric_df, non_numeric_df], axis=1)
+    imputed_df = imputed_df[df.columns]
     
     return imputed_df
 
