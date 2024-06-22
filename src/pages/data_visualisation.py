@@ -1,29 +1,27 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import altair as alt
 
 ############################### Constante #####################################
 
-visulasiation_options = ['HISTOGRAM', 'COURBE', 'MODE']
+visulasiation_options = ['HISTOGRAM', 'COURBE', 'BOITE_A_MOUSTACHE']
 
 
 ############################### Functions #####################################
-
 def get_columns_for_mode(df, mode):
-    if mode in ['HISTOGRAM', 'COURBE']:
+    if mode in ['HISTOGRAM', 'COURBE', 'BOITE_A_MOUSTACHE']:
         return df.select_dtypes(include='number').columns
-    elif mode == 'MODE':
-        return df.select_dtypes(include='string').columns
     else:
         return None
 
 
 def courbe(df, columns):
     column = st.selectbox('Sélectionner la colonne à afficher', columns)
-    fig, ax = plt.subplots()
-    ax.plot(df[column])
-    st.pyplot(fig)
-
-
+    chart = alt.Chart(df).mark_line().encode(
+        x=column,
+        y='count()',
+    )
+    st.altair_chart(chart, theme="streamlit", use_container_width=True)
 
 def histogram(df, columns):
     column = st.selectbox('Sélectionner la colonne à afficher', columns)
@@ -31,15 +29,12 @@ def histogram(df, columns):
     ax.hist(df[column], bins=20)
     st.pyplot(fig)
 
-
-def mode(df, columns):
+def boite_a_moustache(df, columns):
     column = st.selectbox('Sélectionner la colonne à afficher', columns)
-    st.write(df[column].mode())
-
-# def boite_a_moustache(df, columns):
-#     column = st.selectbox('Sélectionner la colonne à afficher', columns)
-#     fig, ax = plt.boxplot(df[column])
-#     st.pyplot(fig)
+    chart = alt.Chart(df).mark_boxplot().encode(
+        x=column,
+    )
+    st.altair_chart(chart, theme="streamlit", use_container_width=True)
 
 
 def displayed_figure(df, selectedMode):
@@ -50,9 +45,9 @@ def displayed_figure(df, selectedMode):
         elif selectedMode == 'COURBE':
             columns = get_columns_for_mode(df, selectedMode)
             courbe(df, columns)
-        elif selectedMode == 'MODE':
+        elif selectedMode == 'BOITE_A_MOUSTACHE':
             columns = get_columns_for_mode(df, selectedMode)
-            mode(df, columns)
+            boite_a_moustache(df, columns)
         else:
             st.write('Mode de visualisation non pris en charge')
 
