@@ -1,7 +1,7 @@
 import streamlit as st
-from front.pages.load_data import load_data_page
-from front.pages.data_visualisation import data_visualization
-from front.pages.data_cleaning import data_cleaning
+from pages.load_data import load_data_page
+from pages.data_visualisation import data_visualization
+from pages.data_cleaning import data_cleaning
 
 def main():
     st.set_page_config(page_title="Data Forever", page_icon="📊", layout="centered")
