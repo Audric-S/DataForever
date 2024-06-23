@@ -49,12 +49,12 @@ def main():
             else:
                 st.error("No data loaded yet. Please upload a CSV file first.")
 
+
 def select_remove_method():
     df = st.session_state['data']
     st.write("Would you like to remove the data of type string ?")
     st.button("Yes")
     st.button("No")
-    st.session_state['data'] = df.select_dtypes(include=[np.number])
 
 
 def select_method():
