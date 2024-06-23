@@ -7,11 +7,21 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, mean_squared_error
 from sklearn.preprocessing import LabelEncoder
 
+def encode_categorical_columns(df):
+    categorical_cols = df.select_dtypes(include=['object']).columns
+    if not categorical_cols.empty:
+        for col in categorical_cols:
+            le = LabelEncoder()
+            df[col] = le.fit_transform(df[col])
+
+
 def data_clustering(df):
     st.title('Clustering')
     st.write("Choisissez l'algorithme de clustering et réglez ses paramètres pour voir les résultats.")
     
     algo = st.selectbox('Choisissez un algorithme de clustering', ('K-means', 'DBSCAN'))
+
+    encode_categorical_columns(df)
 
     if algo == 'K-means':
         k_means_clustering(df)
@@ -38,7 +48,7 @@ def dbscan_clustering(df):
 def data_prediction(df):
     st.title('Prédiction')
     st.write("Choisissez l'algorithme de prédiction et réglez ses paramètres pour voir les résultats.")
-    
+
     target_columns = [col for col in df.columns if col != 'Cluster']
     target = st.selectbox('Choisissez la colonne cible', target_columns)
     X = df.drop(columns=[target])
@@ -102,7 +112,7 @@ def display_regression_results(X, y, model):
 def classification_prediction(X, y):
     st.subheader('Classification')
     st.info("La colonne cible est catégorique. Nous effectuons une tâche de classification.")
-    
+
     # Encodage des variables catégoriques
     categorical_cols = X.select_dtypes(include=['object']).columns
     if not categorical_cols.empty:
@@ -146,13 +156,13 @@ def display_classification_results(X, y, model):
 
 def main_prediction():
     st.sidebar.title("Options")
-    option = st.sidebar.selectbox("Choisissez une tâche", ("Clustering", "Prédiction"))
+    option = st.sidebar.selectbox("Choisissez une tâche", ("Prédiction", "Clustering"))
 
     if 'data' not in st.session_state:
         st.session_state['data'] = pd.DataFrame()
 
     df = st.session_state['data']
-    
+
     if df.empty:
         st.write("No data loaded yet. Please upload a CSV file first.")
     else:
