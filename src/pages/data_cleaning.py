@@ -219,8 +219,6 @@ def data_cleaning():
     Returns:
     A new data frame
 """
-
-
 def delete_rows_with_missing_data(df, threshold_percentage):
     threshold = threshold_percentage / 100
     missing_data_per_row = df.isnull().sum(axis=1) / df.shape[1]
@@ -240,8 +238,6 @@ def delete_rows_with_missing_data(df, threshold_percentage):
     Returns:
     A new data frame
 """
-
-
 def delete_cols_with_missing_data(df, threshold_percentage):
     threshold = threshold_percentage / 100
     missing_data_per_col = df.isnull().sum(axis=0) / df.shape[0]
@@ -259,8 +255,6 @@ def delete_cols_with_missing_data(df, threshold_percentage):
     Returns:
     The same data frame modified
 """
-
-
 def replace_with_mean(df):
     return df.fillna(df.mean())
 
@@ -274,8 +268,6 @@ def replace_with_mean(df):
     Returns:
     The same data frame modified
 """
-
-
 def replace_with_median(df):
     return df.fillna(df.median())
 
@@ -289,8 +281,6 @@ def replace_with_median(df):
     Returns:
     The same data frame modified
 """
-
-
 def replace_with_mode(df):
     for column in df.columns:
         mode_value = df[column].mode()
@@ -309,8 +299,6 @@ n_neighbors (int): Number of neighbors to use for imputation
 Returns:
 DataFrame with missing values imputed
 """
-
-
 def knn_impute(df, n_neighbors):
     non_empty_df = df.dropna(axis=1, how='all')
     imputer = KNNImputer(n_neighbors=n_neighbors)
@@ -351,8 +339,6 @@ estimator_name: Name to parse
 Returns:
 The right estimator, default BayesianRidge
 """
-
-
 def get_estimator(estimator_name):
     estimators = {
         "BayesianRidge": BayesianRidge(),
@@ -364,6 +350,15 @@ def get_estimator(estimator_name):
     return estimators.get(estimator_name, BayesianRidge())
 
 
+"""
+Normalize the data frame with the min-max method
+
+Parameters:
+df: DataFrame to normalize
+
+Returns:
+A normalized dataframe
+"""
 def normalize_min_max(df):
     scaler = MinMaxScaler()
     df_normalized = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
