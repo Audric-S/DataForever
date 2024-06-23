@@ -206,18 +206,6 @@ def data_cleaning():
         st.write("No data loaded yet. Please upload a CSV file first.")
 
 
-
-
-def normalize_min_max(df):
-    scaler = MinMaxScaler()
-    df_normalized = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
-    return df_normalized
-
-def normalize_z_score(df):
-    scaler = StandardScaler()
-    df_normalized = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
-    return df_normalized
-
 def perform_normalization(df, normalizing_method):
     if normalizing_method == "Min Max":
         df_normalized = normalize_min_max(df)

@@ -1,12 +1,13 @@
+import streamlit as st
 import pandas as pd
-import numpy as np
+import pandas as pd
 from sklearn.impute import KNNImputer
-from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.linear_model import BayesianRidge
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
 """
@@ -145,3 +146,33 @@ def get_estimator(estimator_name):
         "SVR": SVR()
     }
     return estimators.get(estimator_name, BayesianRidge())
+
+
+
+"""
+Normalize a DataFrame with the Min-Max method
+
+Parameters:
+df: Dataframe to normalize
+
+Returns:
+The dataframe normalized
+"""
+def normalize_min_max(df):
+    scaler = MinMaxScaler()
+    df_normalized = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+    return df_normalized
+
+"""
+Normalize a DataFrame with the z-score method
+
+Parameters:
+df: Dataframe to normalize
+
+Returns:
+The dataframe normalized
+"""
+def normalize_z_score(df):
+    scaler = StandardScaler()
+    df_normalized = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+    return df_normalized
