@@ -64,7 +64,6 @@ def regression_prediction(X, y):
     st.info("La colonne cible est continue. Nous effectuons une tâche de régression.")
     algo = st.selectbox('Choisissez un algorithme de régression', ('Linear Regression', 'Decision Tree Regressor'))
 
-    # Encodage des variables catégoriques
     categorical_cols = X.select_dtypes(include=['object']).columns
     if not categorical_cols.empty:
         st.warning("Les variables catégoriques détectées. Elles seront encodées pour la prédiction.")
@@ -89,7 +88,6 @@ def regression_prediction(X, y):
     st.write("Erreur quadratique moyenne (MSE):", mean_squared_error(y_test, y_pred))
 
     if 'label_encoders' in locals():
-        st.write("Colonnes encodées avec LabelEncoder:")
         for col, le in label_encoders.items():
             st.write(f"{col}: {dict(zip(le.classes_, le.transform(le.classes_)))}")
 def linear_regression(X, y):
@@ -113,7 +111,6 @@ def classification_prediction(X, y):
     st.subheader('Classification')
     st.info("La colonne cible est catégorique. Nous effectuons une tâche de classification.")
 
-    # Encodage des variables catégoriques
     categorical_cols = X.select_dtypes(include=['object']).columns
     if not categorical_cols.empty:
         st.warning("Les variables catégoriques détectées. Elles seront encodées pour la prédiction.")
