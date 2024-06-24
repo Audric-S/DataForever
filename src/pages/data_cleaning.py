@@ -18,7 +18,7 @@ def main():
     st.title('Welcome on the data cleaning page')
     st.subheader('Data cleaning', divider='grey')
 
-    select_remove_method()
+    remove_string_method = select_remove_method()
     method = select_method()
     handle_method_selection(method)
 
@@ -26,7 +26,7 @@ def main():
         if validate_inputs(method):
             if 'data' in st.session_state:
                 df = st.session_state.get('data_clean', st.session_state.get('data'))
-                df = perform_cleaning(df, method)
+                df = perform_cleaning(df, method, remove_string_method)
                 st.session_state['data'] = df
                 st.success("Data has been cleaned successfully!")
                 st.dataframe(df)
@@ -49,12 +49,31 @@ def main():
             else:
                 st.error("No data loaded yet. Please upload a CSV file first.")
 
-
 def select_remove_method():
     df = st.session_state['data']
-    st.write("Would you like to remove the data of type string ?")
-    st.button("Yes")
-    st.button("No")
+    st.write("How would you like to handle string data?")
+    remove_string_method = st.selectbox(
+        "Select a method to handle string data:",
+        ("Remove", "Ordinal encoding", "One-hot encoding"),
+        index=None,
+        placeholder="Select a method"
+    )
+    st.write("You selected:", remove_string_method)
+    return remove_string_method
+
+def handle_remove_string(remove_string_method):
+    remove_strings = False
+    ordinal_encoding = False
+    one_hot_encoding = False
+
+    if remove_string_method == "Remove":
+        remove_strings = True
+    elif remove_string_method == "Ordinal encoding":
+        ordinal_encoding = True
+    elif remove_string_method == "One-hot encoding":
+        one_hot_encoding = True
+
+    return remove_strings, ordinal_encoding, one_hot_encoding
 
 
 def select_method():
@@ -171,7 +190,18 @@ def validate_normalization_inputs(method, normalizing):
     return True
 
 
-def perform_cleaning(df, method):
+def perform_cleaning(df, method, remove_string_method):
+
+    remove_strings, ordinal_encoding, one_hot_encoding = handle_remove_string(remove_string_method)
+
+    if remove_strings:
+        df = remove_string_columns(df)
+    elif ordinal_encoding:
+        df = ordinal_encode_strings(df)
+    elif one_hot_encoding:
+        df = one_hot_encode_strings(df)
+
+
     if method == "Delete datas":
         if st.session_state.delete_choice == "Rows":
             df = delete_rows_with_missing_data(df, st.session_state.threshold)

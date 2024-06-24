@@ -1,13 +1,12 @@
 import streamlit as st
 import pandas as pd
 import pandas as pd
-from sklearn.impute import KNNImputer
-from sklearn.impute import IterativeImputer
-from sklearn.linear_model import BayesianRidge
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.impute import KNNImputer, IterativeImputer
+from sklearn.linear_model import LinearRegression, Ridge, BayesianRidge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, LabelEncoder
+
 
 
 """
@@ -176,3 +175,21 @@ def normalize_z_score(df):
     scaler = StandardScaler()
     df_normalized = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
     return df_normalized
+
+def remove_string_columns(df):
+    string_columns = df.select_dtypes(include=["object"]).columns
+    df.drop(string_columns, axis=1, inplace=True)
+    return df
+
+def ordinal_encode_strings(df):
+    categorical_cols = df.select_dtypes(include=["object"]).columns
+    if not categorical_cols.empty:
+        for col in categorical_cols:
+            le = LabelEncoder()
+            df[col] = le.fit_transform(df[col])
+    return df
+
+def one_hot_encode_strings(df):
+    string_columns = df.select_dtypes(include=["object"]).columns
+    df = pd.get_dummies(df, columns=string_columns)
+    return df

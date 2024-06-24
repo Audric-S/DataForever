@@ -7,21 +7,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, mean_squared_error
 from sklearn.preprocessing import LabelEncoder
 
-def encode_categorical_columns(df):
-    categorical_cols = df.select_dtypes(include=['object']).columns
-    if not categorical_cols.empty:
-        for col in categorical_cols:
-            le = LabelEncoder()
-            df[col] = le.fit_transform(df[col])
-
 
 def data_clustering(df):
     st.title('Clustering')
     st.write("Choisissez l'algorithme de clustering et réglez ses paramètres pour voir les résultats.")
     
     algo = st.selectbox('Choisissez un algorithme de clustering', ('K-means', 'DBSCAN'))
-
-    encode_categorical_columns(df)
 
     if algo == 'K-means':
         k_means_clustering(df)
@@ -55,9 +46,12 @@ def data_prediction(df):
     y = df[target]
 
     if pd.api.types.is_numeric_dtype(y):
-        regression_prediction(X, y)
+        if pd.api.types.is_float_dtype(y):
+            regression_prediction(X, y)
+        elif pd.api.types.is_integer_dtype(y):
+            classification_prediction(X, y)
     else:
-        classification_prediction(X, y)
+        print("Format de données non supportées, veuillez nettoyer vos données")
 
 def regression_prediction(X, y):
     st.subheader('Régression')
@@ -87,9 +81,6 @@ def regression_prediction(X, y):
 
     st.write("Erreur quadratique moyenne (MSE):", mean_squared_error(y_test, y_pred))
 
-    if 'label_encoders' in locals():
-        for col, le in label_encoders.items():
-            st.write(f"{col}: {dict(zip(le.classes_, le.transform(le.classes_)))}")
 def linear_regression(X, y):
     st.subheader('Paramètres Linear Regression')
     model = LinearRegression()
@@ -127,10 +118,7 @@ def classification_prediction(X, y):
     elif algo == 'Decision Tree Classifier':
         decision_tree_classifier(X, y)
 
-    if 'label_encoders' in locals():
-        st.write("Colonnes encodées avec LabelEncoder:")
-        for col, le in label_encoders.items():
-            st.write(f"{col}: {dict(zip(le.classes_, le.transform(le.classes_)))}")
+
 
 def logistic_regression(X, y):
     st.subheader('Paramètres Logistic Regression')
@@ -155,10 +143,10 @@ def main_prediction():
     st.sidebar.title("Options")
     option = st.sidebar.selectbox("Choisissez une tâche", ("Prédiction", "Clustering"))
 
-    if 'data' not in st.session_state:
-        st.session_state['data'] = pd.DataFrame()
+    if 'data_clean' not in st.session_state:
+        st.session_state['data_clean'] = pd.DataFrame()
 
-    df = st.session_state['data']
+    df = st.session_state['data_clean']
 
     if df.empty:
         st.write("No data loaded yet. Please upload a CSV file first.")
