@@ -181,7 +181,7 @@ def remove_string_columns(df):
     df.drop(string_columns, axis=1, inplace=True)
     return df
 
-def ordinal_encode_strings(df):
+def label_encode_strings(df):
     categorical_cols = df.select_dtypes(include=["object"]).columns
     if not categorical_cols.empty:
         for col in categorical_cols:

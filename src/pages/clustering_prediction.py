@@ -54,7 +54,7 @@ def main_prediction_clustering():
                 if pd.api.types.is_float_dtype(y):
                     algo = st.selectbox('Choisissez un algorithme de régression', ('Linear Regression', 'Decision Tree Regressor'))
                     if algo == 'Linear Regression':
-                        max_iter = st.slider('Nombre max d’itérations', 100, 500, 200)
+                        max_iter = st.slider('Nombre max d’itérations', 10, 500, 200)
                         mse = perform_regression(X, y, algo='Linear Regression', max_iter=max_iter)
                         st.write("Erreur quadratique moyenne (MSE):", mse)
                     elif algo == 'Decision Tree Regressor':
