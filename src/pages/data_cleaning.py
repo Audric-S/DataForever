@@ -10,7 +10,7 @@ from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-from back.data_cleaning_back import *
+from back.data_cleaning import *
 
 
 
@@ -54,7 +54,7 @@ def select_remove_method():
     st.write("How would you like to handle string data?")
     remove_string_method = st.selectbox(
         "Select a method to handle string data:",
-        ("Remove", "Ordinal encoding", "One-hot encoding"),
+        ("Remove", "Label encoding", "One-hot encoding"),
         index=None,
         placeholder="Select a method"
     )
@@ -63,17 +63,17 @@ def select_remove_method():
 
 def handle_remove_string(remove_string_method):
     remove_strings = False
-    ordinal_encoding = False
+    label_encoding = False
     one_hot_encoding = False
 
     if remove_string_method == "Remove":
         remove_strings = True
-    elif remove_string_method == "Ordinal encoding":
-        ordinal_encoding = True
+    elif remove_string_method == "Label encoding":
+        label_encoding = True
     elif remove_string_method == "One-hot encoding":
         one_hot_encoding = True
 
-    return remove_strings, ordinal_encoding, one_hot_encoding
+    return remove_strings, label_encoding, one_hot_encoding
 
 
 def select_method():
@@ -192,12 +192,12 @@ def validate_normalization_inputs(method, normalizing):
 
 def perform_cleaning(df, method, remove_string_method):
 
-    remove_strings, ordinal_encoding, one_hot_encoding = handle_remove_string(remove_string_method)
+    remove_strings, label_encoding, one_hot_encoding = handle_remove_string(remove_string_method)
 
     if remove_strings:
         df = remove_string_columns(df)
-    elif ordinal_encoding:
-        df = ordinal_encode_strings(df)
+    elif label_encoding:
+        df = label_encode_strings(df)
     elif one_hot_encoding:
         df = one_hot_encode_strings(df)
 
