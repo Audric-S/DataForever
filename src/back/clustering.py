@@ -5,6 +5,10 @@ import streamlit as st
 import plotly.express as px
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D 
+import plotly.graph_objects as go
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+
 
 def apply_pca_transform(df, n_components):
     pca = PCA(n_components=n_components)
@@ -16,21 +20,32 @@ def k_means_clustering(df, k):
     kmeans_pca = KMeans(n_clusters=k, n_init=10, init='k-means++')
     kmeans_pca.fit(df)
     cluster_labels = kmeans_pca.labels_
-    return df, cluster_labels
+    centroids = kmeans_pca.cluster_centers_
+    return df, cluster_labels, centroids
 
 def dbscan_clustering(df, eps, min_samples):
+    # scaler = StandardScaler()
+    # df_scaled = scaler.fit_transform(df)
     dbscan = DBSCAN(eps=eps, min_samples=min_samples).fit(df)
     labels = dbscan.labels_
-    df = pd.DataFrame(df, columns=[f'PC{i+1}' for i in range(df.shape[1])])  # Convertir numpy ndarray en DataFrame
-    df['Cluster'] = labels
-    return df, labels
+    df_result = pd.DataFrame(df, columns=[f'PC{i+1}' for i in range(df.shape[1])])
+    df_result['Cluster'] = labels
+    unique_labels = np.unique(labels)
+    centroids = []
+    for label in unique_labels:
+        if label == -1:
+            continue
+        centroid = np.mean(df_result[df_result['Cluster'] == label].iloc[:, :-1], axis=0)
+        centroids.append(centroid)
+    centroids = np.array(centroids)
+    
+    return df_result, labels, centroids
 
-def visualize_clusters_2d(pca_result, cluster_labels):
+
+def visualize_clusters_2d(pca_result):
     st.subheader('Visualisation des clusters (2D)')
     plt.figure(figsize=(10, 6))
-    plt.scatter(pca_result[:, 0], pca_result[:, 1], c=cluster_labels, cmap='viridis')
-    plt.xlabel('Principal Component 1')
-    plt.ylabel('Principal Component 2')
+    plt.scatter(pca_result[:, 0], pca_result[:, 1], cmap='viridis')
     plt.title('DBSCAN Clustering on PCA Results')
     st.pyplot(plt)
 
@@ -39,7 +54,6 @@ def visualize_clusters_3d(pca_result, cluster_labels):
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
     
-    # Filtrer les points de bruit (étiquetés -1)
     mask = cluster_labels != -1
     pca_result_filtered = pca_result[mask]
     cluster_labels_filtered = cluster_labels[mask]
@@ -54,3 +68,38 @@ def visualize_clusters_3d(pca_result, cluster_labels):
     ax.set_zlabel('PC3')
     plt.title('3D DBSCAN Clustering on PCA Results')
     st.pyplot(plt)
+
+def visualize_clusters_3d_interactive(pca_result, cluster_labels, centroids):
+
+    mask = cluster_labels != -1
+    pca_result_filtered = pca_result[mask]
+    cluster_labels_filtered = cluster_labels[mask]
+
+    cluster_labels_str = cluster_labels_filtered.astype(str)
+    fig = px.scatter_3d(
+        x=pca_result_filtered[:, 0],
+        y=pca_result_filtered[:, 1],
+        z=pca_result_filtered[:, 2],
+        color=cluster_labels_str,
+        labels={'color': 'Cluster'}
+    )
+
+    # Ajouter une trace séparée pour les centroides avec une couleur spécifique
+    centroid_trace = go.Scatter3d(
+        x=centroids[:, 0],
+        y=centroids[:, 1],
+        z=centroids[:, 2],
+        mode='markers',
+        marker=dict(
+            size=10,
+            color='black',  # Couleur des centroides
+            symbol='diamond'
+        ),
+        name='Centroids'
+    )
+
+    # Ajouter la trace des centroides à la figure
+    fig.add_trace(centroid_trace)
+
+    # Afficher la figure avec Streamlit
+    st.plotly_chart(fig)

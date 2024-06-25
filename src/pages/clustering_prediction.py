@@ -1,10 +1,16 @@
 import streamlit as st
 import pandas as pd
-from back.clustering import apply_pca_transform, k_means_clustering, dbscan_clustering, visualize_clusters_2d, visualize_clusters_3d
-from back.prediction import perform_regression, perform_classification
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D 
+import plotly.express as px
+import plotly.graph_objects as go
+import numpy as np
+from back.prediction import perform_regression, perform_classification
 import seaborn as sns
-from sklearn.metrics import silhouette_score
+from back.clustering import apply_pca_transform, k_means_clustering, dbscan_clustering, visualize_clusters_2d, visualize_clusters_3d, visualize_clusters_3d_interactive
 
 def main_prediction_clustering():
     st.sidebar.title("Options")
@@ -43,22 +49,33 @@ def main_prediction_clustering():
                 algo = st.selectbox('Choisissez un algorithme de clustering', ('K-means', 'DBSCAN'))
                 if algo == 'K-means':
                     k = st.slider('Nombre de clusters (k)', 1, 10, 4)
-                    clustered_df, cluster_labels = k_means_clustering(pca_df, k)
+                    standardize = st.checkbox('Standardiser les données (Standard Scaler)')
+                    if standardize:
+                        scaler = StandardScaler()
+                        pca_df_standardized = scaler.fit_transform(pca_df)
+                        clustered_df, cluster_labels, centroids = k_means_clustering(pca_df_standardized, k)
+                    else:
+                        clustered_df, cluster_labels, centroids = k_means_clustering(pca_df, k)
+                    
                     st.write('Clusters:', cluster_labels)
-
                     visualize_clusters_3d(clustered_df, cluster_labels)
-                    visualize_clusters_2d(clustered_df, cluster_labels)
+                    visualize_clusters_3d_interactive(clustered_df, cluster_labels, centroids)
+                    visualize_clusters_2d(clustered_df)
 
                 elif algo == 'DBSCAN':
                     eps = st.slider('Epsilon (eps)', 0.1, 1.0, 0.5)
                     min_samples = st.slider('Min_samples', 1, 10, 5)
-                    clustered_df, cluster_labels = dbscan_clustering(pca_df, eps, min_samples)
-                    st.write('Clusters:', clustered_df['Cluster'].value_counts())
-                    st.write(clustered_df)
-                    if n_components >= 3:
-                        visualize_clusters_3d(clustered_df, cluster_labels)
+                    standardize = st.checkbox('Standardiser les données (Standard Scaler)')
+                    if standardize:
+                        scaler = StandardScaler()
+                        pca_df_standardized = scaler.fit_transform(pca_df)
+                        clustered_df, cluster_labels, centroids = dbscan_clustering(pca_df_standardized, eps, min_samples)
                     else:
-                        visualize_clusters_2d(clustered_df, cluster_labels)
+                        clustered_df, cluster_labels, centroids = dbscan_clustering(pca_df, eps, min_samples)
+                    
+                    st.write('Clusters:', clustered_df['Cluster'].value_counts())
+                    visualize_clusters_3d_interactive(clustered_df.values, cluster_labels, centroids)
+
         elif option == "Prédiction":
             st.title('Welcome on the prediction page')
             st.write("Choisissez l'algorithme de prédiction et réglez ses paramètres pour voir les résultats.")
@@ -95,3 +112,5 @@ def main_prediction_clustering():
             else:
                 st.warning("Format de données non supporté, veuillez nettoyer vos données")
 
+if __name__ == '__main__':
+    main_prediction_clustering()
