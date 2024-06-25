@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 from back.clustering import apply_pca_transform, k_means_clustering, dbscan_clustering, visualize_clusters_2d, visualize_clusters_3d
 from back.prediction import perform_regression, perform_classification
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import silhouette_score
 
 def main_prediction_clustering():
     st.sidebar.title("Options")
@@ -20,27 +23,42 @@ def main_prediction_clustering():
             apply_pca = st.checkbox('Appliquer PCA')
             if apply_pca:
                 n_components = st.slider('Nombre de composantes principales', 1, min(len(df.columns), 10), 2)
-                pca_df, explained_variance_ratio = apply_pca_transform(df, n_components)
+                pca_df, explained_variance_ratio, loadings = apply_pca_transform(df, n_components)
                 st.write("Variance expliquée par chaque composante principale:", explained_variance_ratio)
                 st.write(pca_df)
+                st.write("Loadings (contribution des variables d'origine aux composantes principales):")
+                st.write(loadings)
 
-            algo = st.selectbox('Choisissez un algorithme de clustering', ('K-means', 'DBSCAN'))
-            if algo == 'K-means':
-                k = st.slider('Nombre de clusters (k)', 1, 10, 4)
-                clustered_df = k_means_clustering(df, k)
-                st.write('Clusters:', clustered_df['Cluster'].value_counts())
-                st.write(clustered_df)
-                visualize_clusters_2d(clustered_df)
-                visualize_clusters_3d(clustered_df)
-            elif algo == 'DBSCAN':
-                eps = st.slider('Epsilon (eps)', 0.1, 1.0, 0.5)
-                min_samples = st.slider('Min_samples', 1, 10, 5)
-                clustered_df = dbscan_clustering(df, eps, min_samples)
-                st.write('Clusters:', clustered_df['Cluster'].value_counts())
-                st.write(clustered_df)
-                visualize_clusters_2d(clustered_df)
-                visualize_clusters_3d(clustered_df)
+                st.subheader("Visualisation des loadings")
+                fig, ax = plt.subplots()
+                sns.heatmap(loadings, annot=True, cmap='coolwarm', ax=ax)
+                st.pyplot(fig)
+                
+                st.subheader("Analyse des loadings")
+                for i in range(n_components):
+                    st.write(f"Composante Principale {i+1}:")
+                    st.write("Variables avec les plus hauts loadings (en valeur absolue):")
+                    st.write(loadings.iloc[:, i].abs().nlargest(5))
 
+                algo = st.selectbox('Choisissez un algorithme de clustering', ('K-means', 'DBSCAN'))
+                if algo == 'K-means':
+                    k = st.slider('Nombre de clusters (k)', 1, 10, 4)
+                    clustered_df, cluster_labels = k_means_clustering(pca_df, k)
+                    st.write('Clusters:', cluster_labels)
+
+                    visualize_clusters_3d(clustered_df, cluster_labels)
+                    visualize_clusters_2d(clustered_df, cluster_labels)
+
+                elif algo == 'DBSCAN':
+                    eps = st.slider('Epsilon (eps)', 0.1, 1.0, 0.5)
+                    min_samples = st.slider('Min_samples', 1, 10, 5)
+                    clustered_df = dbscan_clustering(pca_df, eps, min_samples)
+                    st.write('Clusters:', clustered_df['Cluster'].value_counts())
+                    st.write(clustered_df)
+                    if n_components >= 3:
+                        visualize_clusters_3d(clustered_df)
+                    else:
+                        visualize_clusters_2d(clustered_df)
         elif option == "Prédiction":
             st.title('Welcome on the prediction page')
             st.write("Choisissez l'algorithme de prédiction et réglez ses paramètres pour voir les résultats.")
