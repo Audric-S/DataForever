@@ -43,11 +43,11 @@ def main_prediction_clustering():
                 algo = st.selectbox('Choisissez un algorithme de clustering', ('K-means', 'DBSCAN'))
                 if algo == 'K-means':
                     k = st.slider('Nombre de clusters (k)', 1, 10, 4)
-                    clustered_df, cluster_labels = k_means_clustering(pca_df, k)
+                    clustered_df, cluster_labels, centroids = k_means_clustering(pca_df, k)
                     st.write('Clusters:', cluster_labels)
 
-                    visualize_clusters_3d(clustered_df, cluster_labels)
-                    visualize_clusters_2d(clustered_df, cluster_labels)
+                    visualize_clusters_3d(clustered_df, cluster_labels, centroids)
+                    visualize_clusters_2d(clustered_df)
 
                 elif algo == 'DBSCAN':
                     eps = st.slider('Epsilon (eps)', 0.1, 1.0, 0.5)
