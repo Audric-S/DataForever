@@ -4,3 +4,4 @@ matplotlib
 sphinx
 sphinx-rtd-theme
 plotly
+pip install streamlit-option-menu
