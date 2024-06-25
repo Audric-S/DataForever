@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from back.clustering import apply_pca_transform, k_means_clustering, dbscan_clustering
+from back.clustering import apply_pca_transform, k_means_clustering, dbscan_clustering, visualize_clusters_2d, visualize_clusters_3d
 from back.prediction import perform_regression, perform_classification
 
 def main_prediction_clustering():
@@ -30,12 +30,16 @@ def main_prediction_clustering():
                 clustered_df = k_means_clustering(df, k)
                 st.write('Clusters:', clustered_df['Cluster'].value_counts())
                 st.write(clustered_df)
+                visualize_clusters_2d(clustered_df)
+                visualize_clusters_3d(clustered_df)
             elif algo == 'DBSCAN':
                 eps = st.slider('Epsilon (eps)', 0.1, 1.0, 0.5)
                 min_samples = st.slider('Min_samples', 1, 10, 5)
                 clustered_df = dbscan_clustering(df, eps, min_samples)
                 st.write('Clusters:', clustered_df['Cluster'].value_counts())
                 st.write(clustered_df)
+                visualize_clusters_2d(clustered_df)
+                visualize_clusters_3d(clustered_df)
 
         elif option == "Prédiction":
             st.title('Welcome on the prediction page')

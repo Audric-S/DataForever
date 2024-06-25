@@ -3,3 +3,4 @@ streamlit
 matplotlib
 sphinx
 sphinx-rtd-theme
+plotly
