@@ -15,6 +15,19 @@ git clone https://github.com/Audric-S/DataForever
 ### Installer les dépendances :
 
 
+```
+pip install -r .\requirements.txt
+```
+(Sur Windows, ou le chemin vers le fichier `requirements.txt`)
+
+
+### Lancer le projet :
+
+```
+streamlit run .\src\app.py
+```
+(Sur Windows, ou le chemin vers le fichier `app.py`)
+
 # Auteurs
 
 Ce projet a été développé par des étudiants dans le cadre d'un projet universitaire. Les membres de l'équipe sont :
