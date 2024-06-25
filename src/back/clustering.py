@@ -42,12 +42,18 @@ def dbscan_clustering(df, eps, min_samples):
     return df_result, labels, centroids
 
 
-def visualize_clusters_2d(pca_result):
+def visualize_clusters_2d(pca_result, cluster_labels, centroids):
     st.subheader('Visualisation des clusters (2D)')
     plt.figure(figsize=(10, 6))
-    plt.scatter(pca_result[:, 0], pca_result[:, 1], cmap='viridis')
-    plt.title('DBSCAN Clustering on PCA Results')
+    plt.scatter(pca_result[:, 0], pca_result[:, 1], c=cluster_labels, cmap='viridis', label='Data Points')
+    if centroids is not None:
+        plt.scatter(centroids[:, 0], centroids[:, 1], marker='x', s=100, c='red', label='Centroids')
+    plt.xlabel('Principal Component 1')
+    plt.ylabel('Principal Component 2')
+    plt.title('Clustering on PCA Results')
+    plt.legend()
     st.pyplot(plt)
+
 
 def visualize_clusters_3d(pca_result, cluster_labels):
     st.subheader('Visualisation des clusters (3D)')

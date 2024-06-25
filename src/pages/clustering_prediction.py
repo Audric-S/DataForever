@@ -26,55 +26,48 @@ def main_prediction_clustering():
     else:
         if option == "Clustering":
             st.title('Welcome on the clustering page')
-            apply_pca = st.checkbox('Appliquer PCA')
-            if apply_pca:
-                n_components = st.slider('Nombre de composantes principales', 1, min(len(df.columns), 10), 2)
-                pca_df, explained_variance_ratio, loadings = apply_pca_transform(df, n_components)
-                st.write("Variance expliquée par chaque composante principale:", explained_variance_ratio)
-                st.write(pca_df)
-                st.write("Loadings (contribution des variables d'origine aux composantes principales):")
-                st.write(loadings)
+            n_components = st.slider('Nombre de composantes principales', 1, min(len(df.columns), 10), 2)
+            pca_df, explained_variance_ratio, loadings = apply_pca_transform(df, n_components)
 
-                st.subheader("Visualisation des loadings")
-                fig, ax = plt.subplots()
-                sns.heatmap(loadings, annot=True, cmap='coolwarm', ax=ax)
-                st.pyplot(fig)
+            st.subheader("Visualisation des loadings")
+            fig, ax = plt.subplots()
+            sns.heatmap(loadings, annot=True, cmap='coolwarm', ax=ax)
+            st.pyplot(fig)
+            
+            algo = st.selectbox('Choisissez un algorithme de clustering', ('K-means', 'DBSCAN'))
+            if algo == 'K-means':
+                k = st.slider('Nombre de clusters (k)', 1, 10, 4)
+                standardize = st.checkbox('Standardiser les données (Standard Scaler)')
+                if standardize:
+                    scaler = StandardScaler()
+                    pca_df_standardized = scaler.fit_transform(pca_df)
+                    clustered_df, cluster_labels, centroids = k_means_clustering(pca_df_standardized, k)
+                else:
+                    clustered_df, cluster_labels, centroids = k_means_clustering(pca_df, k)
                 
-                st.subheader("Analyse des loadings")
-                for i in range(n_components):
-                    st.write(f"Composante Principale {i+1}:")
-                    st.write("Variables avec les plus hauts loadings (en valeur absolue):")
-                    st.write(loadings.iloc[:, i].abs().nlargest(5))
-
-                algo = st.selectbox('Choisissez un algorithme de clustering', ('K-means', 'DBSCAN'))
-                if algo == 'K-means':
-                    k = st.slider('Nombre de clusters (k)', 1, 10, 4)
-                    standardize = st.checkbox('Standardiser les données (Standard Scaler)')
-                    if standardize:
-                        scaler = StandardScaler()
-                        pca_df_standardized = scaler.fit_transform(pca_df)
-                        clustered_df, cluster_labels, centroids = k_means_clustering(pca_df_standardized, k)
-                    else:
-                        clustered_df, cluster_labels, centroids = k_means_clustering(pca_df, k)
-                    
-                    st.write('Clusters:', cluster_labels)
-                    visualize_clusters_3d(clustered_df, cluster_labels)
+                if n_components >= 3:
                     visualize_clusters_3d_interactive(clustered_df, cluster_labels, centroids)
-                    visualize_clusters_2d(clustered_df)
+                    visualize_clusters_3d(clustered_df, cluster_labels)
+                if n_components >= 2:
+                    visualize_clusters_2d(clustered_df, cluster_labels, centroids)
 
-                elif algo == 'DBSCAN':
-                    eps = st.slider('Epsilon (eps)', 0.1, 1.0, 0.5)
-                    min_samples = st.slider('Min_samples', 1, 10, 5)
-                    standardize = st.checkbox('Standardiser les données (Standard Scaler)')
-                    if standardize:
-                        scaler = StandardScaler()
-                        pca_df_standardized = scaler.fit_transform(pca_df)
-                        clustered_df, cluster_labels, centroids = dbscan_clustering(pca_df_standardized, eps, min_samples)
-                    else:
-                        clustered_df, cluster_labels, centroids = dbscan_clustering(pca_df, eps, min_samples)
-                    
-                    st.write('Clusters:', clustered_df['Cluster'].value_counts())
+            elif algo == 'DBSCAN':
+                eps = st.slider('Epsilon (eps)', 0.1, 1.0, 0.5)
+                min_samples = st.slider('Min_samples', 1, 10, 5)
+                standardize = st.checkbox('Standardiser les données (Standard Scaler)')
+                if standardize:
+                    scaler = StandardScaler()
+                    pca_df_standardized = scaler.fit_transform(pca_df)
+                    clustered_df, cluster_labels, centroids = dbscan_clustering(pca_df_standardized, eps, min_samples)
+                else:
+                    clustered_df, cluster_labels, centroids = dbscan_clustering(pca_df, eps, min_samples)
+                
+                st.write('Clusters:', clustered_df['Cluster'].value_counts())
+                if n_components >= 3:
                     visualize_clusters_3d_interactive(clustered_df.values, cluster_labels, centroids)
+                    visualize_clusters_3d(clustered_df.values, cluster_labels)
+                if n_components >= 2:
+                    visualize_clusters_2d(clustered_df.values, cluster_labels, centroids)
 
         elif option == "Prédiction":
             st.title('Welcome on the prediction page')
@@ -89,13 +82,21 @@ def main_prediction_clustering():
                 if pd.api.types.is_float_dtype(y):
                     algo = st.selectbox('Choisissez un algorithme de régression', ('Linear Regression', 'Decision Tree Regressor'))
                     if algo == 'Linear Regression':
-                        max_iter = st.slider('Nombre max d’itérations', 10, 500, 200)
-                        mse = perform_regression(X, y, algo='Linear Regression', max_iter=max_iter)
+                        max_iter = st.slider('Nombre max d’itérations', 100, 10000, 1000, step=100)
+                        mse, r2, mae, rmse = perform_regression(X, y, algo='Linear Regression', max_iter=max_iter)
                         st.write("Erreur quadratique moyenne (MSE):", mse)
+                        st.write("Coefficient de détermination (R-squared):", r2)
+                        st.write("Erreur absolue moyenne (MAE):", mae)
+                        st.write("Erreur quadratique moyenne (RMSE):", rmse)
                     elif algo == 'Decision Tree Regressor':
                         max_depth = st.slider('Profondeur max', 1, 20, 5)
-                        mse = perform_regression(X, y, algo='Decision Tree Regressor', max_depth=max_depth)
+                        mse, r2, mae, rmse = perform_regression(X, y, algo='Decision Tree Regressor', max_depth=max_depth)
                         st.write("Erreur quadratique moyenne (MSE):", mse)
+                        st.write("Coefficient de détermination (R-squared):", r2)
+                        st.write("Erreur absolue moyenne (MAE):", mae)
+                        st.write("Erreur quadratique moyenne (RMSE):", rmse)
+
+
                 
                 elif pd.api.types.is_integer_dtype(y):
                     algo = st.selectbox('Choisissez un algorithme de classification', ('Logistic Regression', 'Decision Tree Classifier'))
