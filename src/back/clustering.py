@@ -30,6 +30,7 @@ def visualize_clusters_3d(dataframe):
     fig = px.scatter_3d(
         x=dataframe.iloc[:, 0],
         y=dataframe.iloc[:, 1],
-        z=dataframe.iloc[:, 2]
+        z=dataframe.iloc[:, 2],
+        color=dataframe['Cluster']
     )
     st.plotly_chart(fig)
