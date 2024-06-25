@@ -52,13 +52,13 @@ def main_prediction_clustering():
                 elif algo == 'DBSCAN':
                     eps = st.slider('Epsilon (eps)', 0.1, 1.0, 0.5)
                     min_samples = st.slider('Min_samples', 1, 10, 5)
-                    clustered_df = dbscan_clustering(pca_df, eps, min_samples)
+                    clustered_df, cluster_labels = dbscan_clustering(pca_df, eps, min_samples)
                     st.write('Clusters:', clustered_df['Cluster'].value_counts())
                     st.write(clustered_df)
                     if n_components >= 3:
-                        visualize_clusters_3d(clustered_df)
+                        visualize_clusters_3d(clustered_df, cluster_labels)
                     else:
-                        visualize_clusters_2d(clustered_df)
+                        visualize_clusters_2d(clustered_df, cluster_labels)
         elif option == "Prédiction":
             st.title('Welcome on the prediction page')
             st.write("Choisissez l'algorithme de prédiction et réglez ses paramètres pour voir les résultats.")
