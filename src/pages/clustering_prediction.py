@@ -11,6 +11,8 @@ import numpy as np
 from back.prediction import perform_regression, perform_classification
 import seaborn as sns
 from back.clustering import apply_pca_transform, k_means_clustering, dbscan_clustering, visualize_clusters_2d, visualize_clusters_3d, visualize_clusters_3d_interactive
+from sklearn.metrics import silhouette_score
+
 
 def main_prediction_clustering():
     """
@@ -52,12 +54,13 @@ def main_prediction_clustering():
                 else:
                     clustered_df, cluster_labels, centroids = k_means_clustering(pca_df, k)
                 
+                silhouette_avg = silhouette_score(pca_df_standardized if standardize else pca_df, cluster_labels)
+                st.write(f'Coefficient de silhouette pour {k} clusters: {silhouette_avg}')
                 if n_components >= 3:
                     visualize_clusters_3d_interactive(clustered_df, cluster_labels, centroids)
                     visualize_clusters_3d(clustered_df, cluster_labels)
                 if n_components >= 2:
                     visualize_clusters_2d(clustered_df, cluster_labels, centroids)
-
             elif algo == 'DBSCAN':
                 eps = st.slider('Epsilon (eps)', 0.1, 1.0, 0.5)
                 min_samples = st.slider('Min_samples', 1, 10, 5)
@@ -70,12 +73,17 @@ def main_prediction_clustering():
                     clustered_df, cluster_labels, centroids = dbscan_clustering(pca_df, eps, min_samples)
                 
                 st.write('Clusters:', clustered_df['Cluster'].value_counts())
+                if len(set(cluster_labels)) > 1:
+                    silhouette_avg = silhouette_score(pca_df_standardized if standardize else pca_df, cluster_labels)
+                    st.write(f'Coefficient de silhouette pour les clusters trouvés: {silhouette_avg}')
+                else:
+                    st.write('Un seul cluster trouvé, le calcul du coefficient de silhouette n\'est pas pertinent.')
+                
                 if n_components >= 3:
                     visualize_clusters_3d_interactive(clustered_df.values, cluster_labels, centroids)
                     visualize_clusters_3d(clustered_df.values, cluster_labels)
                 if n_components >= 2:
                     visualize_clusters_2d(clustered_df.values, cluster_labels, centroids)
-
         elif option == "Prédiction":
             st.title('Welcome on the prediction page')
             st.write("Choisissez l'algorithme de prédiction et réglez ses paramètres pour voir les résultats.")
