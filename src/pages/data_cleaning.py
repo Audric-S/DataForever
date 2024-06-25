@@ -15,6 +15,12 @@ from back.data_cleaning import *
 
 
 def main():
+    """
+        Fonction principale de la page de nettoyage des données qui permet de gérer les différentes méthodes de nettoyage.
+
+        Returns:
+            - None
+    """
     st.title('Welcome on the data cleaning page')
     st.subheader('Data cleaning', divider='grey')
 
@@ -50,6 +56,12 @@ def main():
                 st.error("No data loaded yet. Please upload a CSV file first.")
 
 def select_remove_method():
+    """
+        Fonction qui permet de sélectionner la méthode de suppression des données.
+
+        Returns:
+            - remove_string_method (str): La méthode de suppression des données sélectionnée.
+    """
     df = st.session_state['data']
     st.write("How would you like to handle string data?")
     remove_string_method = st.selectbox(
@@ -62,6 +74,17 @@ def select_remove_method():
     return remove_string_method
 
 def handle_remove_string(remove_string_method):
+    """
+        Fonction qui permet de gérer la méthode de suppression des données.
+
+        Args:
+            - remove_string_method (str): La méthode de suppression des données sélectionnée.
+
+        Returns:
+            - remove_strings (bool): True si la méthode de suppression est "Remove", False sinon.
+            - label_encoding (bool): True si la méthode de suppression est "Label encoding", False sinon.
+            - one_hot_encoding (bool): True si la méthode de suppression est "One-hot encoding", False sinon.
+    """
     remove_strings = False
     label_encoding = False
     one_hot_encoding = False
@@ -77,6 +100,12 @@ def handle_remove_string(remove_string_method):
 
 
 def select_method():
+    """
+        Fonction qui permet de sélectionner la méthode de nettoyage des données.
+
+        Returns:
+            - method (str): La méthode de nettoyage des données sélectionnée.
+    """
     method = st.selectbox(
         "How would you like to deal with missing values?",
         ("Delete datas", "Datas replacement", "Sophisticated imputation"),
@@ -88,6 +117,15 @@ def select_method():
 
 
 def handle_method_selection(method):
+    """
+        Fonction qui permet de gérer la méthode de nettoyage des données.
+
+        Args:
+            - method (str): La méthode de nettoyage des données sélectionnée.
+
+        Returns:
+            - None
+    """
     if method == "Delete datas":
         handle_delete_datas()
     elif method == "Datas replacement":
@@ -97,6 +135,12 @@ def handle_method_selection(method):
 
 
 def handle_delete_datas():
+    """
+        Fonction qui permet de gérer la suppression des données.
+
+        Returns:
+            - None
+    """
     delete_options = ("Rows", "Columns", "Both")
     delete_choice = st.selectbox(
         "What would you like to delete?",
@@ -112,6 +156,12 @@ def handle_delete_datas():
 
 
 def handle_datas_replacement():
+    """
+        Fonction qui permet de gérer le remplacement des données.
+
+        Returns:
+            - None
+    """
     replacement_options = ("Mean", "Median", "Mode")
     replacement = st.selectbox(
         "How would you like to replace the missing values?",
@@ -124,6 +174,12 @@ def handle_datas_replacement():
 
 
 def handle_sophisticated_imputation():
+    """
+        Fonction qui permet de gérer l'imputation des données.
+
+        Returns:
+            - None
+    """
     imputation_options = ("KNN", "Regression")
     imputation = st.selectbox(
         "How would you like to impute the missing values?",
@@ -151,6 +207,12 @@ def handle_sophisticated_imputation():
 
 
 def select_normalizing_method():
+    """
+        Fonction qui permet de sélectionner la méthode de normalisation des données.
+
+        Returns:
+            - normalizing (str): La méthode de normalisation des données sélectionnée.
+    """
     normalizing = st.selectbox(
         "How would you like to normalize your data?",
         ("Min Max", "Z-score"),
@@ -161,6 +223,15 @@ def select_normalizing_method():
 
 
 def validate_inputs(method):
+    """
+        Fonction qui permet de valider les entrées de l'utilisateur.
+
+        Args:
+            - method (str): La méthode de nettoyage des données sélectionnée.
+
+        Returns:
+            - True si les entrées sont valides, False sinon.
+    """
     if method == "Delete datas":
         if st.session_state.get('threshold') is None or st.session_state.get('delete_choice') is None:
             st.error("Please select a valid threshold and delete choice.")
@@ -184,6 +255,16 @@ def validate_inputs(method):
 
 
 def validate_normalization_inputs(method, normalizing):
+    """
+        Fonction qui permet de valider les entrées de l'utilisateur pour la normalisation des données.
+
+        Args:
+            - method (str): La méthode de nettoyage des données sélectionnée.
+            - normalizing (str): La méthode de normalisation des données sélectionnée.
+
+        Returns:
+            - True si les entrées sont valides, False sinon.
+    """
     if method is None or normalizing is None:
         st.error("Please select a valid option in all the select boxes.")
         return False
@@ -191,7 +272,17 @@ def validate_normalization_inputs(method, normalizing):
 
 
 def perform_cleaning(df, method, remove_string_method):
+    """
+        Fonction qui permet de nettoyer les données.
 
+        Args:
+            - df (pd.DataFrame): Le DataFrame des données.
+            - method (str): La méthode de nettoyage des données sélectionnée.
+            - remove_string_method (str): La méthode de suppression des données sélectionnée.
+
+        Returns:
+            - df (pd.DataFrame): Le DataFrame des données nettoyées.
+    """
     remove_strings, label_encoding, one_hot_encoding = handle_remove_string(remove_string_method)
 
     if remove_strings:
@@ -229,6 +320,12 @@ def perform_cleaning(df, method, remove_string_method):
 
 
 def data_cleaning():
+    """
+        Fonction qui permet de nettoyer les données.
+
+        Returns:
+            - None
+    """
     if 'data' in st.session_state:
         df = st.session_state['data']
         main()
@@ -237,6 +334,16 @@ def data_cleaning():
 
 
 def perform_normalization(df, normalizing_method):
+    """
+        Fonction qui permet de normaliser les données.
+
+        Args:
+            - df (pd.DataFrame): Le DataFrame des données.
+            - normalizing_method (str): La méthode de normalisation des données sélectionnée.
+
+        Returns:
+            - df_normalized (pd.DataFrame): Le DataFrame des données normalisées.
+    """
     if normalizing_method == "Min Max":
         df_normalized = normalize_min_max(df)
     elif normalizing_method == "Z-score":

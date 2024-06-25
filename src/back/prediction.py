@@ -8,6 +8,21 @@ import numpy as np
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 
 def perform_regression(X, y, algo='Linear Regression', **kwargs):
+    """
+    Fonction permettant de réaliser une régression linéaire ou un arbre de décision.
+
+    Args:
+    - X: features
+    - y: target
+    - algo: algorithme à utiliser (Linear Regression ou Decision Tree Regressor)
+    - **kwargs: arguments spécifiques à passer à l'algorithme
+
+    Returns:
+    - mse: Mean Squared Error (MSE)
+    - r2: R2 Score (Coefficient de détermination)
+    - mae: Mean Absolute Error (MAE)
+    - rmse: Root Mean Squared Error (RMSE)
+    """
     if algo == 'Linear Regression':
         max_iter = kwargs.pop('max_iter', None)  # Récupère max_iter s'il est passé
         model = LinearRegression(max_iter=max_iter, **kwargs)
@@ -25,6 +40,19 @@ def perform_regression(X, y, algo='Linear Regression', **kwargs):
     return mse, r2, mae, rmse
 
 def perform_classification(X, y, algo, max_iter=None, max_depth=None):
+    """
+    Fonction permettant de réaliser une classification avec une régression logistique ou un arbre de décision.
+
+    Args:
+    - X: features
+    - y: target
+    - algo: algorithme à utiliser (Logistic Regression ou Decision Tree Classifier)
+    - max_iter: nombre d'itérations maximum pour la régression logistique
+    - max_depth: profondeur maximale pour l'arbre de décision
+
+    Returns:
+    - classification_report: rapport de classification
+    """
     if algo == 'Logistic Regression':
         model = LogisticRegression(max_iter=max_iter)
     elif algo == 'Decision Tree Classifier':

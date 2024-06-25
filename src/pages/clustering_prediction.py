@@ -13,6 +13,13 @@ import seaborn as sns
 from back.clustering import apply_pca_transform, k_means_clustering, dbscan_clustering, visualize_clusters_2d, visualize_clusters_3d, visualize_clusters_3d_interactive
 
 def main_prediction_clustering():
+    """
+        Fonction principale pour l'interface de prédiction et clustering.
+        Elle permet de choisir entre les deux tâches et de choisir les paramètres pour chaque tâche.
+
+        Returns:
+            - None
+    """
     st.sidebar.title("Options")
     option = st.sidebar.selectbox("Choisissez une tâche", ("Prédiction", "Clustering"))
 
