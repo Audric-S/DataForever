@@ -6,3 +6,4 @@ sphinx-rtd-theme
 plotly
 streamlit-option-menu
 streamlit
+seaborn
