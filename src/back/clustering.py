@@ -27,10 +27,22 @@ def visualize_clusters_2d(dataframe):
 
 # Fonction pour la visualisation des clusters en 3D
 def visualize_clusters_3d(dataframe):
+    centroids = dataframe.groupby('Cluster').mean().reset_index()
     fig = px.scatter_3d(
         x=dataframe.iloc[:, 0],
         y=dataframe.iloc[:, 1],
         z=dataframe.iloc[:, 2],
-        color=dataframe['Cluster']
+        color=dataframe['Cluster'],
     )
+
+    # Ajouter les barycentres à la figure
+    fig.add_trace(
+        px.scatter_3d(
+            centroids,
+            x=centroids.iloc[:, 1],  # 0th column is 'Cluster', 1st is x
+            y=centroids.iloc[:, 2],  # 2nd column is y
+            z=centroids.iloc[:, 3],  # 3rd column is z
+        ).data[0]
+    )
+
     st.plotly_chart(fig)
