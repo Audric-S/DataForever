@@ -1,8 +1,8 @@
 ==================
-Module data_cleaning
+Module front_clustering_prediction
 ==================
 
-.. automodule:: pages.load_data
+.. automodule:: pages.clustering_prediction
    :members:
    :undoc-members:
    :show-inheritance:
