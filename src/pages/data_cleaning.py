@@ -13,7 +13,6 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from back.data_cleaning import *
 
 
-
 def main():
     """
         Fonction principale de la page de nettoyage des données qui permet de gérer les différentes méthodes de nettoyage.
@@ -24,6 +23,7 @@ def main():
     st.title('Welcome on the data cleaning page')
     st.subheader('Data cleaning', divider='grey')
 
+    remove_columns()
     remove_string_method = select_remove_method()
     method = select_method()
     handle_method_selection(method)
@@ -55,6 +55,7 @@ def main():
             else:
                 st.error("No data loaded yet. Please upload a CSV file first.")
 
+
 def select_remove_method():
     """
         Fonction qui permet de sélectionner la méthode de suppression des données.
@@ -72,6 +73,24 @@ def select_remove_method():
     )
     st.write("You selected:", remove_string_method)
     return remove_string_method
+
+
+def remove_columns():
+    """
+    Fonction qui permet de supprimer des colonnes du DataFrame.
+
+    Returns:
+    - None
+    """
+    if 'data' in st.session_state:
+        df = st.session_state['data']
+        colonnes_a_supprimer = st.multiselect(
+            "Sélectionnez les colonnes à supprimer",
+            options=df.columns.tolist()
+        )
+        df = do_remove_columns(df, colonnes_a_supprimer)
+        st.session_state['data'] = df
+
 
 def handle_remove_string(remove_string_method):
     """
@@ -291,7 +310,6 @@ def perform_cleaning(df, method, remove_string_method):
         df = label_encode_strings(df)
     elif one_hot_encoding:
         df = one_hot_encode_strings(df)
-
 
     if method == "Delete datas":
         if st.session_state.delete_choice == "Rows":

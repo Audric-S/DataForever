@@ -220,3 +220,19 @@ def one_hot_encode_strings(df):
     string_columns = df.select_dtypes(include=["object"]).columns
     df = pd.get_dummies(df, columns=string_columns)
     return df
+
+
+def do_remove_columns(df, columns):
+    """
+    Fonction qui supprime les colonnes spécifiées d'un DataFrame
+
+    Args:
+    - df (pd.DataFrame): Dataframe à nettoyer
+    - columns (list): Liste des colonnes à supprimer
+
+    Returns:
+    - DataFrame nettoyé
+    """
+    if columns:
+        df = df.drop(columns=columns)
+    return df
