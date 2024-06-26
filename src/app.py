@@ -10,7 +10,7 @@ def main():
     
     with st.sidebar:
         page = option_menu("Menu", ["Load Datas", "Clean Datas", "Visualize Datas", "Prediction"], 
-            icons=['cloud-upload', 'gear', 'list-task'], default_index=0)
+            icons=['cloud-upload', 'gear', 'bar-chart'], default_index=0)
     
     
     if page == "Load Datas":
